@@ -1,4 +1,4 @@
-# War3NetApi
+# War3NetMPQApi
 
 CLI API for https://github.com/Drake53/War3Net/tree/master/src/War3Net.IO.Mpq
 

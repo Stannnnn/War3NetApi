@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using War3Net.IO.Mpq;
 
-namespace War3NetApi
+namespace War3NetMPQApi
 {
     class Program
     {
