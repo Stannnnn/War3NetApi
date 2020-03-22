@@ -16,13 +16,17 @@ namespace War3NetMPQApi
         private static void Extract (string fileName, string fileOut) {
             if (mpqArchive != null)
             {
-                using (MpqStream fileStreamIn = mpqArchive.OpenFile(fileName))
+                try
                 {
-                    using (FileStream fileStreamOut = File.OpenWrite(fileOut))
+                    using (MpqStream fileStreamIn = mpqArchive.OpenFile(fileName))
                     {
-                        fileStreamIn.CopyTo(fileStreamOut);
+                        using (FileStream fileStreamOut = File.OpenWrite(fileOut))
+                        {
+                            fileStreamIn.CopyTo(fileStreamOut);
+                        }
                     }
                 }
+                catch (FileNotFoundException ex){}
             }
         }
 
