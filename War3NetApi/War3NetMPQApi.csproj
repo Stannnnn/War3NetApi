@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="War3Net.IO.Mpq" Version="0.1.0" />
+    <Reference Include="War3Net.IO.Mpq">
+      <HintPath>..\..\War3Net\src\War3Net.IO.Mpq\bin\Debug\netcoreapp3.0\War3Net.IO.Mpq.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
