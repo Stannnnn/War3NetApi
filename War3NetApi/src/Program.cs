@@ -35,6 +35,10 @@ namespace War3NetMPQApi
                         mpqEditor.Remove(parts[1]);
                         break;
 
+                    case "save":
+                        mpqEditor.Save();
+                        break;
+
                     case "close":
                         mpqEditor.Close();
                         break;

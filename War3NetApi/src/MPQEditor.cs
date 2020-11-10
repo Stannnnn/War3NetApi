@@ -63,11 +63,18 @@ namespace War3NetMPQApi
             mpqArchiveFiles?.RemovedFiles.Add(MpqHash.GetHashedFileName(file));
         }
 
-        public void Close()
+        public void Save()
         {
             if (mpqArchivePath != null)
             {
                 mpqArchiveFiles?.SaveTo(mpqArchivePath);
+            }
+        }
+
+        public void Close()
+        {
+            if (mpqArchivePath != null)
+            {
                 mpqArchivePath = null;
             }
 

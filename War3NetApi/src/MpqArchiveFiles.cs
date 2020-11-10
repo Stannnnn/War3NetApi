@@ -29,7 +29,7 @@ namespace War3NetMPQApi
                 SaveTo(stream);
             }
         }
-
+        
         public void SaveTo(Stream stream)
         {
             MpqArchive.Create(stream, GetMpqFiles().ToArray(), (ushort)MpqArchive.Header.HashTableSize).Dispose();
