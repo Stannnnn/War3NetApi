@@ -32,7 +32,7 @@ namespace War3NetMPQApi
 
         public void SaveTo(Stream stream)
         {
-            MpqArchive.Create(stream, GetMpqFiles().ToArray()).Dispose();
+            MpqArchive.Create(stream, GetMpqFiles().ToArray(), (ushort)MpqArchive.Header.HashTableSize).Dispose();
         }
 
         public void Dispose()
