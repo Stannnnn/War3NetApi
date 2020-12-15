@@ -2,7 +2,7 @@
 
 namespace War3NetMPQApi
 {
-    class Program
+    internal class Program
     {
         private static void Main(string[] args)
         {
@@ -23,12 +23,20 @@ namespace War3NetMPQApi
                         mpqEditor.Extract(parts[1], parts[2]);
                         break;
 
-                    case "restore":
-                        mpqEditor.Unh3x(parts[1]);
+                    case "extractall":
+                        mpqEditor.ExtractAll(parts[1], parts[2]);
+                        break;
+
+                    case "list":
+                        mpqEditor.List(parts[1], parts[2]);
                         break;
 
                     case "replace":
                         mpqEditor.Replace(parts[1], parts[2]);
+                        break;
+
+                    case "addall":
+                        mpqEditor.AddAll(parts[1]);
                         break;
 
                     case "remove":

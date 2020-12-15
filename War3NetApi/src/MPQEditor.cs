@@ -1,13 +1,16 @@
 ﻿#nullable enable
 
+using System.Collections.Generic;
 using System.IO;
+using War3Net.Build.Extensions;
 using War3Net.IO.Mpq;
 
 namespace War3NetMPQApi
 {
-    class MPQEditor
+    internal class MPQEditor
     {
-        private MpqArchiveFiles? mpqArchiveFiles;
+        private MpqArchive? originalMpqArchive;
+        private MpqArchiveBuilder? mpqArchiveBuilder;
         private string? mpqArchivePath;
 
         public void Open(string fileName)
@@ -21,18 +24,19 @@ namespace War3NetMPQApi
             }
             copy.Position = 0;
 
-            mpqArchiveFiles = new MpqArchiveFiles(copy);
+            originalMpqArchive = MpqArchive.Open(copy);
+            mpqArchiveBuilder = new MpqArchiveBuilder(originalMpqArchive);
         }
 
         public void Extract(string fileName, string fileOut)
         {
-            if (mpqArchiveFiles != null)
+            if (originalMpqArchive != null)
             {
                 try
                 {
-                    using (MpqStream fileStreamIn = mpqArchiveFiles.MpqArchive.OpenFile(fileName))
+                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(fileName))
                     {
-                        using (FileStream fileStreamOut = File.Create(fileOut))
+                        using (FileStream fileStreamOut = FileProvider.CreateFileAndFolder(fileOut))
                         {
                             fileStreamIn.CopyTo(fileStreamOut);
                         }
@@ -42,32 +46,70 @@ namespace War3NetMPQApi
             }
         }
 
-        public void Unh3x(string file)
+        public void ExtractAll(string listFile, string folder)
         {
-            using (MemoryStream stream = MpqArchive.Restore(file))
+            if (originalMpqArchive != null)
             {
-                using (FileStream streamOut = File.Create(file))
+                string[] files = File.ReadAllLines(listFile);
+
+                foreach (var file in files)
                 {
-                    stream.CopyTo(streamOut);
+                    if (originalMpqArchive.FileExists(file))
+                    {
+                        Extract(file, folder + Path.DirectorySeparatorChar + file);
+                    }
                 }
+            }
+        }
+
+        public void List(string listFile, string fileOut)
+        {
+            if (originalMpqArchive != null)
+            {
+                string[] files = File.ReadAllLines(listFile);
+                List<string> list = new List<string>();
+
+                foreach (var file in files)
+                {
+                    if (originalMpqArchive.FileExists(file))
+                    {
+                        list.Add(file);
+                    }
+                }
+
+                File.WriteAllLines(fileOut, list.ToArray());
             }
         }
 
         public void Replace(string inputFile, string replaceFile)
         {
-            mpqArchiveFiles?.ModifiedFiles.Add(MpqFile.New(File.OpenRead(inputFile), replaceFile));
+            mpqArchiveBuilder?.AddFile(MpqFile.New(File.OpenRead(inputFile), replaceFile));
+        }
+
+        public void AddAll(string folder)
+        {
+            if (mpqArchiveBuilder != null)
+            {
+                foreach ((var fileName, var _, var stream) in FileProvider.EnumerateFiles(folder))
+                {
+                    mpqArchiveBuilder.AddFile(MpqFile.New(stream, fileName));
+                }
+            }
         }
 
         public void Remove(string file)
         {
-            mpqArchiveFiles?.RemovedFiles.Add(MpqHash.GetHashedFileName(file));
+            mpqArchiveBuilder?.RemoveFile(MpqHash.GetHashedFileName(file));
         }
 
         public void Save()
         {
-            if (mpqArchivePath != null)
+            if (mpqArchivePath != null && mpqArchiveBuilder != null)
             {
-                mpqArchiveFiles?.SaveTo(mpqArchivePath);
+                using (var fileStream = File.Create(mpqArchivePath))
+                {
+                    mpqArchiveBuilder.SaveWithPreArchiveData(fileStream);
+                }
             }
         }
 
@@ -78,7 +120,7 @@ namespace War3NetMPQApi
                 mpqArchivePath = null;
             }
 
-            mpqArchiveFiles?.Dispose();
+            originalMpqArchive?.Dispose();
         }
     }
 }
