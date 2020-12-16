@@ -108,7 +108,7 @@ namespace War3NetMPQApi
             {
                 using (var fileStream = File.Create(mpqArchivePath))
                 {
-                    mpqArchiveBuilder.SaveWithPreArchiveData(fileStream);
+                    mpqArchiveBuilder.SaveArchive(fileStream);
                 }
             }
         }
