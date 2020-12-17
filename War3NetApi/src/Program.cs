@@ -31,8 +31,8 @@ namespace War3NetMPQApi
                         mpqEditor.List(parts[1], parts[2]);
                         break;
 
-                    case "replace":
-                        mpqEditor.Replace(parts[1], parts[2]);
+                    case "add":
+                        mpqEditor.Add(parts[1], parts[2]);
                         break;
 
                     case "addall":
