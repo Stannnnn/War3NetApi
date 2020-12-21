@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using War3Net.Build.Extensions;
 using War3Net.IO.Mpq;
 
@@ -53,7 +54,7 @@ namespace War3NetMPQApi
             {
                 try
                 {
-                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(fileName))
+                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(originalMpqArchive.GetMpqEntries(fileName).First()))
                     {
                         using (FileStream fileStreamOut = CreateOrOpenFileAndFolder(fileOut))
                         {
