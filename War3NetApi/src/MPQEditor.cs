@@ -28,17 +28,34 @@ namespace War3NetMPQApi
             mpqArchiveBuilder = new MpqArchiveBuilder(originalMpqArchive);
         }
 
-        public void Extract(string fileName, string dirOut)
+        private static FileStream CreateOrOpenFileAndFolder(string path)
         {
-            var fileOut = dirOut + Path.DirectorySeparatorChar + fileName;
+            var directory = new FileInfo(path).Directory;
 
+            if (!Directory.Exists(directory.FullName))
+            {
+                Directory.CreateDirectory(directory.FullName);
+            }
+
+            if (File.Exists(path))
+            {
+                return File.OpenWrite(path);
+            }
+            else
+            {
+                return File.Create(path);
+            }
+        }
+
+        public void Extract(string fileName, string fileOut)
+        {
             if (originalMpqArchive != null)
             {
                 try
                 {
                     using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(fileName))
                     {
-                        using (FileStream fileStreamOut = FileProvider.CreateFileAndFolder(fileOut))
+                        using (FileStream fileStreamOut = CreateOrOpenFileAndFolder(fileOut))
                         {
                             fileStreamIn.CopyTo(fileStreamOut);
                         }
@@ -65,7 +82,7 @@ namespace War3NetMPQApi
                 {
                     if (originalMpqArchive.FileExists(file))
                     {
-                        Extract(file, dirOut);
+                        Extract(file, dirOut + Path.DirectorySeparatorChar + file);
                     }
                 }
             }
