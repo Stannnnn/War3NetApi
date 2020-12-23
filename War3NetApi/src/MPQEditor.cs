@@ -54,7 +54,17 @@ namespace War3NetMPQApi
             {
                 try
                 {
-                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(originalMpqArchive.GetMpqEntries(fileName).First()))
+                    var mpqEntries = originalMpqArchive.GetMpqEntries(fileName);
+
+                    if (mpqEntries.Count() > 1)
+                    {
+                        foreach (var mpqEntry in mpqEntries)
+                        {
+                            System.Console.WriteLine(mpqEntry.Filename + " " + mpqEntry.FilePosition + " " + mpqEntry.FileSize);
+                        }
+                    }
+
+                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(mpqEntries.Last()))
                     {
                         using (FileStream fileStreamOut = CreateOrOpenFileAndFolder(fileOut))
                         {
@@ -110,6 +120,7 @@ namespace War3NetMPQApi
 
         public void Add(string inputFile, string fileName)
         {
+            mpqArchiveBuilder?.RemoveFile(fileName);
             mpqArchiveBuilder?.AddFile(MpqFile.New(File.OpenRead(inputFile), fileName));
         }
 
@@ -119,6 +130,7 @@ namespace War3NetMPQApi
             {
                 foreach ((var fileName, var _, var stream) in FileProvider.EnumerateFiles(folder))
                 {
+                    mpqArchiveBuilder.RemoveFile(fileName);
                     mpqArchiveBuilder.AddFile(MpqFile.New(stream, fileName));
                 }
             }
@@ -136,6 +148,17 @@ namespace War3NetMPQApi
                 using (var fileStream = File.Create(mpqArchivePath))
                 {
                     mpqArchiveBuilder.SaveArchive(fileStream);
+                }
+            }
+        }
+
+        public void Restore(string file)
+        {
+            using (MemoryStream stream = MpqArchive.Restore(file))
+            {
+                using (FileStream streamOut = File.Create(file))
+                {
+                    stream.CopyTo(streamOut);
                 }
             }
         }

@@ -45,13 +45,13 @@ namespace War3Net.Build.Extensions
         public static void SaveArchive(this MpqArchiveBuilder mpqArchiveBuilder, Stream stream, CampaignInfo campaignInfo, bool leaveOpen = false)
         {
             campaignInfo.WriteArchiveHeaderToStream(stream);
-            mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune }, leaveOpen);
+            mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune, ListFileCreateMode = MpqFileCreateMode.None }, leaveOpen);
         }
 
         public static void SaveArchive(this MpqArchiveBuilder mpqArchiveBuilder, Stream stream, MapInfo mapInfo, bool leaveOpen = false)
         {
             mapInfo.WriteArchiveHeaderToStream(stream);
-            mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune }, leaveOpen);
+            mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune, ListFileCreateMode = MpqFileCreateMode.None }, leaveOpen);
         }
     }
 }
