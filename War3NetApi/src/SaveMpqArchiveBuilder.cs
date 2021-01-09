@@ -12,7 +12,7 @@ namespace War3Net.Build.Extensions
         private static readonly ulong CampaignInfoHashedFileName = MpqHash.GetHashedFileName(CampaignInfo.FileName);
         private static readonly ulong MapInfoHashedFileName = MpqHash.GetHashedFileName(MapInfo.FileName);
 
-        public static void SaveArchive(this MpqArchiveBuilder mpqArchiveBuilder, Stream stream, bool leaveOpen = false)
+        public static void SaveArchive(this CustomMpqArchiveBuilder mpqArchiveBuilder, Stream stream, bool leaveOpen = false)
         {
             var mpqFiles = mpqArchiveBuilder.ToArray();
             var campaignInfoFile = mpqFiles.SingleOrDefault(file => file.Name == CampaignInfoHashedFileName);
@@ -42,13 +42,13 @@ namespace War3Net.Build.Extensions
             }
         }
 
-        public static void SaveArchive(this MpqArchiveBuilder mpqArchiveBuilder, Stream stream, CampaignInfo campaignInfo, bool leaveOpen = false)
+        public static void SaveArchive(this CustomMpqArchiveBuilder mpqArchiveBuilder, Stream stream, CampaignInfo campaignInfo, bool leaveOpen = false)
         {
             campaignInfo.WriteArchiveHeaderToStream(stream);
             mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune, ListFileCreateMode = MpqFileCreateMode.None }, leaveOpen);
         }
 
-        public static void SaveArchive(this MpqArchiveBuilder mpqArchiveBuilder, Stream stream, MapInfo mapInfo, bool leaveOpen = false)
+        public static void SaveArchive(this CustomMpqArchiveBuilder mpqArchiveBuilder, Stream stream, MapInfo mapInfo, bool leaveOpen = false)
         {
             mapInfo.WriteArchiveHeaderToStream(stream);
             mpqArchiveBuilder.SaveTo(stream, new MpqArchiveCreateOptions { AttributesCreateMode = MpqFileCreateMode.Prune, ListFileCreateMode = MpqFileCreateMode.None }, leaveOpen);

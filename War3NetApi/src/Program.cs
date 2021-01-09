@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using War3Net.Build.Info;
+
 namespace War3NetMPQApi
 {
     internal class Program
@@ -49,6 +51,10 @@ namespace War3NetMPQApi
 
                     case "close":
                         mpqEditor.Close();
+                        break;
+
+                    case "transpile":
+                        mpqEditor.TranspileAndSaveTest(parts[1], parts[2], ScriptLanguage.Lua);
                         break;
                 }
             }
