@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using CSharpLua;
+using NuGet.Packaging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -108,13 +109,15 @@ namespace War3NetMPQApi
         {
             if (originalMpqArchive != null)
             {
-                string[] files = File.ReadAllLines(listFile);
+                var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                files.AddRange(File.ReadAllLines(listFile));
 
                 if (originalMpqArchive.FileExists("(listfile)"))
                 {
                     using (MpqStream fileStreamIn = originalMpqArchive.OpenFile("(listfile)"))
                     {
-                        files = files.Concat(ReadLines(() => fileStreamIn).ToArray()).ToArray();
+                        files.AddRange(ReadLines(() => fileStreamIn));
                     }
                 }
 
@@ -157,7 +160,7 @@ namespace War3NetMPQApi
         {
             if (mpqArchiveBuilder != null)
             {
-                foreach ((var fileName, var _, var stream) in FileProvider.EnumerateFiles(folder))
+                foreach ((var fileName, var _, var stream) in EnumerateFiles(folder))
                 {
                     mpqArchiveBuilder.RemoveFile(fileName);
                     mpqArchiveBuilder.AddFile(MpqFile.New(stream, fileName));
@@ -245,15 +248,20 @@ namespace War3NetMPQApi
                 mpqArchiveBuilder.RemoveFile("war3map.j");
                 mpqArchiveBuilder.RemoveFile(@"Scripts\war3map.j");
 
-                var commonJ = JassParser.ParseFile(@"C:\Users\Stan\Google Drive\PHP Projects\Files\common.j");
-                var blizzardJ = JassParser.ParseFile(@"C:\Users\Stan\Google Drive\PHP Projects\Files\blizzard.j");
+                using var reader = new StreamReader(@"C:\Users\Stan\Google Drive\PHP Projects\Files\common.j");
+                var commonJ = JassSyntaxFactory.ParseCompilationUnit(reader.ReadToEnd());
+
+                using var reader2 = new StreamReader(@"C:\Users\Stan\Google Drive\PHP Projects\Files\blizzard.j");
+                var blizzardJ = JassSyntaxFactory.ParseCompilationUnit(reader2.ReadToEnd());
 
                 var transpiler = new JassToLuaTranspiler();
                 transpiler.RegisterJassFile(commonJ);
                 transpiler.RegisterJassFile(blizzardJ);
 
                 var script = mapArchive.OpenFile("war3map.j");
-                var luaCompilationUnit = transpiler.Transpile(JassParser.ParseStream(script));
+
+                using var reader3 = new StreamReader(script);
+                var luaCompilationUnit = transpiler.Transpile(JassSyntaxFactory.ParseCompilationUnit(reader3.ReadToEnd()));
                 script.Close();
 
                 var tempFileName = Path.GetTempFileName();
@@ -293,6 +301,24 @@ namespace War3NetMPQApi
             else
             {
                 throw new NotSupportedException($"Unable to transpile from {sourceLanguage} to {targetLanguage}.");
+            }
+        }
+
+        public IEnumerable<(string fileName, MpqLocale locale, Stream stream)> EnumerateFiles(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                var pathPrefixLength = path.Length + (path.EndsWith(@"\", StringComparison.Ordinal) ? 0 : 1);
+                foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+                {
+                    var fileName = new FileInfo(file).ToString().Substring(pathPrefixLength);
+                    // var memoryStream = new MemoryStream();
+                    // File.OpenRead(file).CopyTo(memoryStream);
+
+                    var locale = MpqLocaleProvider.GetPathLocale(fileName, out var filePath);
+
+                    yield return (filePath, locale, File.OpenRead(file));
+                }
             }
         }
     }
