@@ -73,11 +73,14 @@ namespace War3NetMPQApi
                         }
                     }
 
-                    using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(mpqEntries.Last()))
+                    if (mpqEntries.Count() >= 1)
                     {
-                        using (FileStream fileStreamOut = CreateOrOpenFileAndFolder(fileOut))
+                        using (MpqStream fileStreamIn = originalMpqArchive.OpenFile(mpqEntries.Last()))
                         {
-                            fileStreamIn.CopyTo(fileStreamOut);
+                            using (FileStream fileStreamOut = CreateOrOpenFileAndFolder(fileOut))
+                            {
+                                fileStreamIn.CopyTo(fileStreamOut);
+                            }
                         }
                     }
                 }
